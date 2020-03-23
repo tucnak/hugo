@@ -18,6 +18,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"regexp"
+	"strconv"
 
 	_strings "strings"
 	"unicode/utf8"
@@ -458,4 +460,37 @@ func (ns *Namespace) Repeat(n, s interface{}) (string, error) {
 	}
 
 	return _strings.Repeat(ss, sn), nil
+}
+
+var rangeRx = regexp.MustCompile(`(\d+)(-(\d+))?`)
+func whereIn(text string, i int) int {
+	pos := _strings.Index(text, "// "+strconv.Itoa(i)+".")
+	if pos < 0 {
+		pos = len(text)
+	}
+
+	return pos
+}
+
+func (ns *Namespace) Hippo(whole, prop interface{}) (string, error) {
+	text, err := cast.ToStringE(whole)
+	if err != nil {
+		return "", err
+	}
+	pair, err := cast.ToStringE(prop)
+	if err != nil {
+		return "", err
+	}
+
+	m := rangeRx.FindStringSubmatch(pair)
+
+	x, _ := strconv.Atoi(m[1])
+	y, _ := strconv.Atoi(m[3])
+	if y == 0 {
+		y = x
+	}
+
+	start, end := whereIn(text, x), whereIn(text, y+1)
+	hippo := _strings.TrimRight(text[start:end], "\n")
+	return hippo, nil
 }

@@ -184,6 +184,7 @@ func init() {
 			},
 		)
 
+		ns.AddMethodMapping(ctx.Hippo, []string{"hippo"}, nil)
 		return ns
 
 	}
